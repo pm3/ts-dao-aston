@@ -13,8 +13,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --exclude 'test/**'",
+    "test:watch": "vitest --exclude 'test/**'",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:all": "npm test && docker compose up -d --wait && npm run test:integration; docker compose down",
     "prepublishOnly": "npm run build"
   },
   "files": [
