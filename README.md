@@ -132,8 +132,8 @@ export const userDao = {
   // entity helpers — standard CRUD
   loadById:    (id: string) => oneEntity(userConfig, id),
   maybeById:   (id: string) => maybeEntity(userConfig, id),
-  insert:      (u: Omit<User, 'id' | 'created_at' | 'updated_at'>) => insertEntity(userConfig, u),
-  insertGetId: (u: Omit<User, 'id' | 'created_at' | 'updated_at'>) => insertEntityWithId(userConfig, u),
+  insert:      (u: Partial<User>) => insertEntity(userConfig, u),
+  insertGetId: (u: Partial<User>) => insertEntityWithId(userConfig, u),
   update:      (u: Partial<User>) => updateEntity(userConfig, u),
   save:        (u: User)          => upsertEntity(userConfig, u),
   deleteById:  (id: string) => deleteById(userConfig, id),
@@ -160,8 +160,8 @@ All entity functions accept an optional `tx` parameter for transaction support.
 ```
 oneEntity(config, id, tx?)           → SELECT * WHERE pk=:id             — throws NoRowsError if not found
 maybeEntity(config, id, tx?)         → SELECT * WHERE pk=:id             — returns null if not found
-insertEntity(config, data, tx?)      → INSERT INTO (cols) VALUES (...)   — excludes pk, createdAt, updatedAt
-insertEntityWithId(config, data, tx?) → INSERT ... RETURNING pk          — returns generated id
+insertEntity(config, data, tx?)      → INSERT INTO (cols) VALUES (...)   — Partial<T>, excludes pk, createdAt, updatedAt
+insertEntityWithId(config, data, tx?) → INSERT ... RETURNING pk          — Partial<T>, returns generated id
 updateEntity(config, data, tx?)      → UPDATE SET ... WHERE pk=:id       — PATCH semantics, updatedAt = now()
 upsertEntity(config, data, tx?)      → INSERT ... ON CONFLICT DO UPDATE  — updatedAt = now()
 deleteById(config, id, tx?)          → DELETE WHERE pk=:id

@@ -75,7 +75,7 @@ export async function maybeEntity<S extends ZodObject<ZodRawShape>>(
 
 export async function insertEntity<S extends ZodObject<ZodRawShape>>(
   config: EntityConfig<S>,
-  data: Omit<Entity<S>, string>,
+  data: Partial<Entity<S>>,
   tx?: Tx,
 ): Promise<void> {
   const managed = managedKeys(config)
@@ -100,7 +100,7 @@ export async function insertEntity<S extends ZodObject<ZodRawShape>>(
 
 export async function insertEntityWithId<S extends ZodObject<ZodRawShape>>(
   config: EntityConfig<S>,
-  data: Omit<Entity<S>, string>,
+  data: Partial<Entity<S>>,
   tx?: Tx,
 ): Promise<string> {
   const managed = managedKeys(config)

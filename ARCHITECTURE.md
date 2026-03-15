@@ -232,8 +232,8 @@ interface EntityConfig<S extends ZodObject> {
 |---|---|---|---|
 | `oneEntity(config, id)` | `SELECT * WHERE pk=:id` | `string` | `T` (throws if 0) |
 | `maybeEntity(config, id)` | `SELECT * WHERE pk=:id` | `string` | `T \| null` |
-| `insertEntity(config, data)` | `INSERT INTO (cols) VALUES (...)` | `Omit<T, managed>` | `void` |
-| `insertEntityWithId(config, data)` | `INSERT ... RETURNING pk` | `Omit<T, managed>` | `string` |
+| `insertEntity(config, data)` | `INSERT INTO (cols) VALUES (...)` | `Partial<T>` | `void` |
+| `insertEntityWithId(config, data)` | `INSERT ... RETURNING pk` | `Partial<T>` | `string` |
 | `updateEntity(config, data)` | `UPDATE SET ... WHERE pk=:pk` | `Partial<T>` | `void` |
 | `upsertEntity(config, data)` | `INSERT ... ON CONFLICT DO UPDATE` | pk required + all fields | `void` |
 | `deleteById(config, id)` | `DELETE WHERE pk=:id` | `string` | `void` |
