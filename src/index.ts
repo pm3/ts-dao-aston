@@ -11,5 +11,5 @@ export {
   deleteById,
 } from './entity/entity-ops.js'
 export { type EntityConfig } from './entity/entity-config.js'
-export { inList, type Tx, type SqlParams } from './types.js'
+export { spread, type Tx, type SqlParams } from './types.js'
 export { DaoError, NoRowsError, TooManyRowsError } from './errors.js'

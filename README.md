@@ -75,14 +75,14 @@ const users = await select<User>(`
 
 ## Array Parameters (IN clause)
 
-Use `inList()` to expand an array into multiple positional parameters for `IN` clauses. Plain arrays are **not** auto-expanded — they are passed as-is to `pg` (PostgreSQL arrays or JSONB).
+Use `spread()` to expand an array into multiple positional parameters for `IN` clauses. Plain arrays are **not** auto-expanded — they are passed as-is to `pg` (PostgreSQL arrays or JSONB).
 
 ```typescript
-import { select, inList } from 'ts-dao-aston'
+import { select, spread } from 'ts-dao-aston'
 
 const users = await select<User>(
   'SELECT * FROM users WHERE id IN (:ids) AND status=:status',
-  { ids: inList([10, 20, 30]), status: 'active' }
+  { ids: spread([10, 20, 30]), status: 'active' }
 )
 
 // generated SQL:
@@ -90,7 +90,7 @@ const users = await select<User>(
 // values: [10, 20, 30, 'active']
 ```
 
-`inList()` throws if the array is empty. Works inside optional `/** **/` blocks — if the param is `null`, the block is removed as usual.
+`spread()` throws if the array is empty. Works inside optional `/** **/` blocks — if the param is `null`, the block is removed as usual.
 
 ---
 

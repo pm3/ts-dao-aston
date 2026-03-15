@@ -1,25 +1,25 @@
 import type { PoolClient } from 'pg'
 
-const IN_LIST_BRAND = Symbol('InList')
+const SPREAD_BRAND = Symbol('Spread')
 
-export interface InList {
-  readonly __brand: typeof IN_LIST_BRAND
+export interface Spread {
+  readonly __brand: typeof SPREAD_BRAND
   readonly values: readonly unknown[]
 }
 
-export function inList(values: readonly unknown[]): InList {
+export function spread(values: readonly unknown[]): Spread {
   if (values.length === 0) {
-    throw new Error('inList() requires a non-empty array')
+    throw new Error('spread() requires a non-empty array')
   }
-  return { __brand: IN_LIST_BRAND, values }
+  return { __brand: SPREAD_BRAND, values }
 }
 
-export function isInList(value: unknown): value is InList {
+export function isSpread(value: unknown): value is Spread {
   return (
     typeof value === 'object' &&
     value !== null &&
     '__brand' in value &&
-    (value as InList).__brand === IN_LIST_BRAND
+    (value as Spread).__brand === SPREAD_BRAND
   )
 }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { parse, resolve, prepareQuery, clearTemplateCache } from './template.js'
-import { inList } from '../types.js'
+import { spread } from '../types.js'
 
 beforeEach(() => clearTemplateCache())
 
@@ -76,7 +76,7 @@ describe('resolve', () => {
 
   it('expands InList to multiple positional params', () => {
     const template = parse('SELECT * FROM t WHERE id IN (:ids)')
-    const result = resolve(template, { ids: inList([10, 20, 30]) })
+    const result = resolve(template, { ids: spread([10, 20, 30]) })
     expect(result.sql).toBe('SELECT * FROM t WHERE id IN ($1,$2,$3)')
     expect(result.values).toEqual([10, 20, 30])
   })
@@ -86,7 +86,7 @@ describe('resolve', () => {
       'SELECT * FROM t WHERE id IN (:ids) AND status=:status',
     )
     const result = resolve(template, {
-      ids: inList([1, 2]),
+      ids: spread([1, 2]),
       status: 'active',
     })
     expect(result.sql).toBe(

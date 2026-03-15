@@ -127,7 +127,7 @@ for each segment:
     if part is ParamRef:
       value = params[part.name]
 
-      if isInList(value):
+      if isSpread(value):
         → generate "$N,$N+1,...,$N+len-1"
         → push all items into values
         → positional_index += array.length
@@ -158,20 +158,20 @@ query("SELECT ...", params)
 
 ---
 
-## InList — explicit wrapper for array expansion
+## Spread — explicit wrapper for array expansion
 
 Non-primitive values (objects, arrays) are materialized as JSONB in the entity layer. Automatic array expansion would be ambiguous — `[1,2,3]` could be either an IN-clause expansion or a JSONB value. Therefore array expansion requires an **explicit wrapper**.
 
 ### Wrapper type
 
 ```typescript
-InList {
-  __brand: Symbol('InList')    // unique symbol — cannot be confused with a regular object
+Spread {
+  __brand: Symbol('Spread')    // unique symbol — cannot be confused with a regular object
   values: unknown[]             // values to expand
 }
 
-inList(values: unknown[]): InList     // factory function
-isInList(value: unknown): boolean     // runtime check via Symbol
+spread(values: unknown[]): Spread     // factory function
+isSpread(value: unknown): boolean     // runtime check via Symbol
 ```
 
 ### Usage
@@ -180,7 +180,7 @@ isInList(value: unknown): boolean     // runtime check via Symbol
 // IN-clause expansion — explicit
 const users = await select<User>(
   'SELECT * FROM users WHERE id IN (:ids) AND status=:status',
-  { ids: inList([10, 20, 30]), status: 'active' }
+  { ids: spread([10, 20, 30]), status: 'active' }
 )
 // → SELECT * FROM users WHERE id IN ($1,$2,$3) AND status=$4
 // → values: [10, 20, 30, 'active']
@@ -198,17 +198,17 @@ await execute(
 
 | Value | Detection | Behavior |
 |---|---|---|
-| `inList([...])` | `isInList()` — check via Symbol brand | Expansion: `$N,$N+1,...` |
+| `spread([...])` | `isSpread()` — check via Symbol brand | Expansion: `$N,$N+1,...` |
 | anything else | — | Single `$N`, value as-is |
 
 ### Edge cases
 
 | Situation | Behavior |
 |---|---|
-| `inList([])` — empty array | Error: `inList() requires a non-empty array` |
-| `inList([null, 1, 2])` — null in array | Allowed — `NULL` is a valid value in IN clause |
-| `inList` in optional block, param is `null` | Block is removed |
-| `inList` in optional block, param is `inList([1,2])` | Block is included, expansion proceeds |
+| `spread([])` — empty array | Error: `spread() requires a non-empty array` |
+| `spread([null, 1, 2])` — null in array | Allowed — `NULL` is a valid value in IN clause |
+| `spread` in optional block, param is `null` | Block is removed |
+| `spread` in optional block, param is `spread([1,2])` | Block is included, expansion proceeds |
 
 ---
 
@@ -278,7 +278,7 @@ The library introspects the Zod schema and identifies JSONB columns by type:
 ```
 src/
 ├── index.ts                  # public barrel export
-├── types.ts                  # InList wrapper (Symbol brand), Tx, SqlParams
+├── types.ts                  # Spread wrapper (Symbol brand), Tx, SqlParams
 ├── errors.ts                 # DaoError, NoRowsError, TooManyRowsError
 ├── config.ts                 # configure(), getPool(), destroyPool()
 ├── sql/
@@ -301,7 +301,7 @@ named-params ──┐
                ├──→ template (cache) ──→ query ──→ entity-ops
 optional-blocks┘         ↑                 ↑          ↑
                          │                 │          │
-types (InList) ──────────┘            config      jsonb + entity-config
+types (Spread) ──────────┘            config      jsonb + entity-config
                                        │
 transaction ───────────────────────────┘
 ```

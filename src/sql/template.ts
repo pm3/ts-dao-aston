@@ -1,6 +1,6 @@
 import { extractOptionalBlocks } from './optional-blocks.js'
 import { extractParams, type ParamRef, type TemplatePart } from './named-params.js'
-import { isInList, type SqlParams } from '../types.js'
+import { isSpread, type SqlParams } from '../types.js'
 
 export interface Segment {
   optional: boolean
@@ -65,7 +65,7 @@ export function resolve(
       const ref = part as ParamRef
       const value = p[ref.name]
 
-      if (isInList(value)) {
+      if (isSpread(value)) {
         const placeholders: string[] = []
         for (const item of value.values) {
           placeholders.push(`$${idx++}`)
