@@ -198,6 +198,19 @@ describe('upsertEntity', () => {
     expect(user.name).toBe('Frank')
   })
 
+  it('throws if pk is missing', async () => {
+    await expect(
+      upsertEntity(userConfig, {
+        name: 'No PK',
+        email: 'nopk@t.com',
+        ext_id: null,
+        active: true,
+        address: null,
+        tags: null,
+      }),
+    ).rejects.toThrow('primary key')
+  })
+
   it('updates when row exists', async () => {
     const id = '22222222-2222-2222-2222-222222222222'
     await upsertEntity(userConfig, {

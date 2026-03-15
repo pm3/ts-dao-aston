@@ -17,6 +17,7 @@
     "test:watch": "vitest --exclude 'test/**'",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:all": "npm test && docker compose up -d --wait && npm run test:integration; docker compose down",
+    "test:coverage": "docker compose up -d --wait && vitest run --config vitest.coverage.config.ts; docker compose down",
     "prepublishOnly": "npm run build"
   },
   "files": [
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.11.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "pg": "^8.13.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0",
