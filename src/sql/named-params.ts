@@ -4,7 +4,7 @@ export interface ParamRef {
 
 export type TemplatePart = string | ParamRef
 
-const PARAM_RE = /:([a-zA-Z_][a-zA-Z0-9_]*)/g
+const PARAM_RE = /(?<!:):([a-zA-Z_][a-zA-Z0-9_]*)/g
 
 /**
  * Splits a SQL fragment into interleaved text and parameter references.
