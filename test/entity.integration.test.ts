@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 import {
   type EntityConfig,
   oneEntity,
@@ -46,7 +46,7 @@ beforeEach(async () => {
 })
 
 describe('entity read operations', () => {
-  it('oneEntity returns a validated row', async () => {
+  it('oneEntity returns a row', async () => {
     const res = await getPool().query(
       "INSERT INTO users (name, email) VALUES ('Alice', 'alice@t.com') RETURNING id",
     )
@@ -84,6 +84,12 @@ describe('entity read operations', () => {
 })
 
 describe('insertEntity', () => {
+  it('validates input via schema.partial() and throws ZodError for invalid types', async () => {
+    await expect(
+      insertEntity(userConfig, { name: 123 } as unknown as Partial<User>),
+    ).rejects.toThrow(ZodError)
+  })
+
   it('inserts a row excluding managed columns', async () => {
     await insertEntity(userConfig, {
       name: 'Carol',

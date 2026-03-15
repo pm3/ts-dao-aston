@@ -219,7 +219,7 @@ await execute(
 ```typescript
 interface EntityConfig<S extends ZodObject> {
   table: string          // table name
-  schema: S              // Zod schema — validation + transformation of rows from DB
+  schema: S              // Zod schema — validation of write input via schema.partial()
   pk: string             // primary key column name
   createdAt?: string     // automatically excluded on insert/update
   updatedAt?: string     // automatically set to now() on update/upsert
@@ -239,6 +239,12 @@ interface EntityConfig<S extends ZodObject> {
 | `deleteById(config, id)` | `DELETE WHERE pk=:id` | `string` | `void` |
 
 Managed columns = `pk`, `createdAt`, `updatedAt` — automatically excluded/set.
+
+### Zod validation — write only
+
+- **Read** (`oneEntity`, `maybeEntity`): no validation; raw row from DB is returned as `T`.
+- **Write** (`insertEntity`, `insertEntityWithId`, `updateEntity`, `upsertEntity`): input is validated via `schema.partial().parse(data)` before SQL execution.
+- **Partial**: `schema.partial()` makes all keys optional; any present key is validated. Unknown keys are stripped. Invalid types throw `ZodError`.
 
 ### updateEntity — undefined / null / value semantics
 
@@ -266,7 +272,7 @@ The library introspects the Zod schema and identifies JSONB columns by type:
 | `z.record()` | yes | `nullable`, `optional`, `default`, `transform` |
 | `z.string()`, `z.number()`, `z.boolean()`, `z.date()` | no | — |
 
-- **Read** — pg deserializes `jsonb` automatically, Zod schema validates the structure.
+- **Read** — pg deserializes `jsonb` automatically; no Zod validation (raw row returned).
 - **Write** — the library calls `JSON.stringify()` on detected columns before sending to DB.
 - **Null** — if value is `null`, `JSON.stringify` is not called. `null` goes to DB directly.
 - Detection result is cached via `WeakMap<ZodObject, Set<string>>`.

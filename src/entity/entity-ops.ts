@@ -57,7 +57,7 @@ export async function oneEntity<S extends ZodObject<ZodRawShape>>(
   const sql = `SELECT * FROM ${config.table} WHERE ${config.pk}=:id`
   const rows = await executeRaw(sql, { id }, tx)
   if (rows.length === 0) throw new NoRowsError(sql)
-  return config.schema.parse(rows[0])
+  return rows[0] as Entity<S>
 }
 
 export async function maybeEntity<S extends ZodObject<ZodRawShape>>(
@@ -68,7 +68,7 @@ export async function maybeEntity<S extends ZodObject<ZodRawShape>>(
   const sql = `SELECT * FROM ${config.table} WHERE ${config.pk}=:id`
   const rows = await executeRaw(sql, { id }, tx)
   if (rows.length === 0) return null
-  return config.schema.parse(rows[0])
+  return rows[0] as Entity<S>
 }
 
 // --- Insert ---
@@ -78,9 +78,9 @@ export async function insertEntity<S extends ZodObject<ZodRawShape>>(
   data: Partial<Entity<S>>,
   tx?: Tx,
 ): Promise<void> {
+  const obj = config.schema.partial().parse(data) as Record<string, unknown>
   const managed = managedKeys(config)
   const jsonbCols = getJsonbCols(config.schema)
-  const obj = data as Record<string, unknown>
 
   const cols: string[] = []
   const params: Record<string, unknown> = {}
@@ -103,9 +103,9 @@ export async function insertEntityWithId<S extends ZodObject<ZodRawShape>>(
   data: Partial<Entity<S>>,
   tx?: Tx,
 ): Promise<string> {
+  const obj = config.schema.partial().parse(data) as Record<string, unknown>
   const managed = managedKeys(config)
   const jsonbCols = getJsonbCols(config.schema)
-  const obj = data as Record<string, unknown>
 
   const cols: string[] = []
   const params: Record<string, unknown> = {}
@@ -132,7 +132,7 @@ export async function updateEntity<S extends ZodObject<ZodRawShape>>(
   data: Partial<Entity<S>>,
   tx?: Tx,
 ): Promise<void> {
-  const obj = data as Record<string, unknown>
+  const obj = config.schema.partial().parse(data) as Record<string, unknown>
   const pkValue = obj[config.pk]
   if (pkValue === undefined || pkValue === null) {
     throw new Error(
@@ -167,10 +167,10 @@ export async function updateEntity<S extends ZodObject<ZodRawShape>>(
 
 export async function upsertEntity<S extends ZodObject<ZodRawShape>>(
   config: EntityConfig<S>,
-  data: Record<string, unknown>,
+  data: Partial<Entity<S>>,
   tx?: Tx,
 ): Promise<void> {
-  const obj = data as Record<string, unknown>
+  const obj = config.schema.partial().parse(data) as Record<string, unknown>
   const pkValue = obj[config.pk]
   if (pkValue === undefined || pkValue === null) {
     throw new Error(
